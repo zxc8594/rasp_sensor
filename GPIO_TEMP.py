@@ -3,6 +3,7 @@
 import RPi.GPIO as GPIO
 import time
 import math
+import sys
 
 SCK = 6
 SDA = 12
@@ -166,7 +167,7 @@ def calc_SHT11(humidity, temperature):
 	
 	if rh_true > 100:
 		rh_true = 100
-	if rh_true < 0.1
+	if rh_true < 0.1:
 		rh_true = 0.1
 	
 	global val_temp
@@ -188,7 +189,7 @@ try:
 		humi = get_SHT11_data(HUMI)
 		time.sleep(0.1)
 		
-		print('Temp = ' + temp + ', Humi = ' + humi)
+		print('Temp = %.2f C, Humi = %.2f %%' % (temp, humi))
 except:
 	print(sys.exc_info())
 	GPIO.cleanup()
