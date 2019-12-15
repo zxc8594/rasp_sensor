@@ -1,0 +1,11 @@
+C++		Python
+digitalRead	GPIO.input
+digitalWrite	GPIO.output
+		GPIO.setmode
+pinMode		GPIO.setup
+		GPIO.cleanup
+
+HIGH		GPIO.HIGH
+LOW		GPIO.LOW
+OUTPUT		GPIO.OUT
+		GPIO.BCM
