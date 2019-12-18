@@ -1,13 +1,18 @@
 # coding : utf-8
 
 import wiringpi as wp
-import time
+from time import sleep
 
 CS_MCP3208 = 8
 SPI_CHANNEL = 0
 SPI_SPEED = 1000000
 
-def ReadMcp3208ADC(adcChannel):
+def init():
+	wp.wiringPiSetupGpio()
+	wp.wiringPiSPISetup(SPI_CHANNEL, SPI_SPEED)
+	wp.pinMode(CS_MCP3208, wp.OUTPUT)
+
+def read():
 	nAdcValue = 0
 	
 	wp.digitalWrite(CS_MCP3208, 0)
@@ -17,19 +22,4 @@ def ReadMcp3208ADC(adcChannel):
 	nAdcValue = (r1 << 8) | retdata[2]
 	wp.digitalWrite(CS_MCP3208, 1)
 	return nAdcValue
-
-# main
-nCdsChannel = 0
-nPhotoCellChannel = 1
-nCdsValue = 0
-nPhotoCellValue = 0
-
-wp.wiringPiSetupGpio()
-wp.wiringPiSPISetup(SPI_CHANNEL, SPI_SPEED)
-wp.pinMode(CS_MCP3208, wp.OUTPUT)
-
-while True:
-	nCdsValue = ReadMcp3208ADC(nCdsChannel)
-	print('LIGHT = %d Lux' % nCdsValue)
-	time.sleep(0.5)
 

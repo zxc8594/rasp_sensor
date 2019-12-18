@@ -1,9 +1,8 @@
 # coding : utf-8
 
 import RPi.GPIO as GPIO
-import time
-import math
-import sys
+from time import sleep
+from math import floor
 
 SCK = 6
 SDA = 12
@@ -27,7 +26,7 @@ READ_STATUS_REG = 0x07
 WRITE_STATUS_REG = 0x06
 RESET = 0x1e
 
-def SHT11_init():
+def init():
 	GPIO.setup(SDA, GPIO.OUT)
 	GPIO.setup(SCK, GPIO.OUT)
 	Connection_reset()
@@ -37,24 +36,24 @@ def Connection_reset():
 	GPIO.output(SCK, 0)
 	for i in range(0, 9):
 		GPIO.output(SCK, 1)
-		time.sleep(0.001)
+		sleep(0.001)
 		GPIO.output(SCK, 0)
-		time.sleep(0.001)
+		sleep(0.001)
 
 def Transmission_start():
 	GPIO.output(SDA, 1)
 	GPIO.output(SCK, 0)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 1)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SDA, 0)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 0)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 1)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SDA, 1)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 0)
 
 def get_SHT11_data(type):
@@ -111,15 +110,15 @@ def Write_byte(value):
 			GPIO.output(SDA, 1)
 		else:
 			GPIO.output(SDA, 0)
-		time.sleep(0.001)
+		sleep(0.001)
 		GPIO.output(SCK, 1)
-		time.sleep(0.001)
+		sleep(0.001)
 		GPIO.output(SCK, 0)
-		time.sleep(0.001)
-		i = math.floor(i/2)
+		sleep(0.001)
+		i = floor(i/2)
 	GPIO.output(SDA, 1)
 	GPIO.setup(SDA, GPIO.IN)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 1)
 	err = GPIO.input(SDA)
 	GPIO.output(SCK, 0)
@@ -130,26 +129,26 @@ def Read_byte(ack):
 	val = 0
 	GPIO.setup(SDA, GPIO.OUT)
 	GPIO.output(SDA, 1)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.setup(SDA, GPIO.IN)
 	i = 0x80
 	while i > 0:
 		GPIO.output(SCK, 1)
-		time.sleep(0.001)
+		sleep(0.001)
 		if GPIO.input(SDA):
 			val = (val | i)
 		GPIO.output(SCK, 0)
-		time.sleep(0.001)
-		i = math.floor(i/2)
+		sleep(0.001)
+		i = floor(i/2)
 	GPIO.setup(SDA, GPIO.OUT)
 	if ack:
 		GPIO.output(SDA, 0)
 	else:
 		GPIO.output(SDA, 1)
 	GPIO.output(SCK, 1)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SCK, 0)
-	time.sleep(0.001)
+	sleep(0.001)
 	GPIO.output(SDA, 1)
 	return val
 
@@ -176,20 +175,12 @@ def calc_SHT11(humidity, temperature):
 	val_temp = t_C
 	val_humi = rh_true
 
-# main
-GPIO.setmode(GPIO.BCM)
+def read():
+	Transmission_start()
+	temp = get_SHT11_data(TEMP)
+	Transmission_start()
+	humi = get_SHT11_data(HUMI)
 
-SHT11_init()
-try:
-	while(True):
-		Transmission_start()
-		temp = get_SHT11_data(TEMP)
-		time.sleep(0.1)
-		Transmission_start()
-		humi = get_SHT11_data(HUMI)
-		time.sleep(0.1)
-		
-		print('Temp = %.2f C, Humi = %.2f %%' % (temp, humi))
-except:
-	print(sys.exc_info())
-	GPIO.cleanup()
+	return temp, humi
+	
+#print('Temp = %.2f C, Humi = %.2f %%' % (temp, humi))
